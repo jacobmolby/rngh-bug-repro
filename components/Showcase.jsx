@@ -1,24 +1,21 @@
-import { ScrollView, StyleSheet, Text } from 'react-native';
-import React, { useEffect, useMemo, useRef } from 'react';
-import { View, Button } from 'react-native';
+import React from 'react';
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated from 'react-native-reanimated';
-import {
-  Gesture,
-  GestureDetector,
-  GestureType,
-  GestureHandlerRootView,
-} from 'react-native-gesture-handler';
 
 const Showcase = () => {
-  const longPressGesture = Gesture.LongPress().onStart(() => {
-    console.log('long press');
-  });
+  const longPressGesture = Gesture.LongPress()
+    .onStart(() => {
+      console.log('long press');
+    })
+    .runOnJS(true);
 
   const doubleTapGesture = Gesture.Tap()
     .numberOfTaps(2)
     .onStart(() => {
       console.log('double tap');
-    });
+    })
+    .runOnJS(true);
 
   const gesture = Gesture.Race(doubleTapGesture, longPressGesture);
 
@@ -33,7 +30,7 @@ const Showcase = () => {
       <ScrollView contentContainerStyle={{ gap: 20 }}>
         <GestureDetector gesture={gesture}>
           <Animated.View style={styles.outer}>
-            <Blue gesture={doubleTapGesture} />
+            <Blue doubleTapGesture={doubleTapGesture} />
           </Animated.View>
         </GestureDetector>
         <View style={{ gap: 20 }}>
@@ -63,30 +60,34 @@ const Showcase = () => {
 
 export default Showcase;
 
-const Blue = ({ gesture }) => {
-  const tapGesture = Gesture.Tap().onStart(() => {
-    console.log('Blue: tap');
-  });
+const Blue = ({ doubleTapGesture }) => {
+  const tapGesture = Gesture.Tap()
+    .onStart(() => {
+      console.log('Blue: tap');
+    })
+    .runOnJS(true);
 
-  const composedGesture = Gesture.Exclusive(gesture, tapGesture);
+  const composedGesture = Gesture.Exclusive(doubleTapGesture, tapGesture);
 
   return (
     <GestureDetector gesture={composedGesture}>
       <Animated.View style={styles.blue}>
-        <Orange waitFor={gesture} />
+        <Orange doubleTapGesture={doubleTapGesture} />
       </Animated.View>
     </GestureDetector>
   );
 };
 
-const Orange = ({ waitFor }) => {
-  const tapGesture = Gesture.Tap().onStart(() => {
-    console.log('Orange: tap');
-  });
+const Orange = ({ doubleTapGesture }) => {
+  const tapGesture = Gesture.Tap()
+    .onStart(() => {
+      console.log('Orange: tap');
+    })
+    .runOnJS(true);
 
   return (
-    <GestureDetector gesture={Gesture.Exclusive(waitFor, tapGesture)}>
-      <Animated.View style={styles.inner2}></Animated.View>
+    <GestureDetector gesture={Gesture.Exclusive(doubleTapGesture, tapGesture)}>
+      <Animated.View style={styles.orange}></Animated.View>
     </GestureDetector>
   );
 };
@@ -104,15 +105,15 @@ const styles = StyleSheet.create({
   },
   blue: {
     width: '80%',
-    height: '50%',
+    height: '80%',
     backgroundColor: 'blue',
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
-  inner2: {
+  orange: {
     margin: 5,
-    width: 100,
-    height: 40,
+    width: '50%',
+    height: '50%',
     backgroundColor: 'orange',
   },
 });
