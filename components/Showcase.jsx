@@ -1,19 +1,33 @@
 import React from 'react';
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated from 'react-native-reanimated';
 
 const Showcase = () => {
+  const [lastActions, setLastActions] = React.useState([]);
+
+  const addAction = action => {
+    setLastActions(actions => {
+      const date = new Date();
+      const time = date.toLocaleTimeString();
+
+      if (actions.length >= 3) {
+        actions.pop();
+      }
+      return [action + ': ' + time, ...actions];
+    });
+  };
+
   const longPressGesture = Gesture.LongPress()
     .onStart(() => {
-      console.log('long press');
+      addAction('long press');
     })
     .runOnJS(true);
 
   const doubleTapGesture = Gesture.Tap()
     .numberOfTaps(2)
     .onStart(() => {
-      console.log('double tap');
+      addAction('double tap');
     })
     .runOnJS(true);
 
@@ -30,9 +44,16 @@ const Showcase = () => {
       <ScrollView contentContainerStyle={{ gap: 20 }}>
         <GestureDetector gesture={gesture}>
           <Animated.View style={styles.outer}>
-            <Blue doubleTapGesture={doubleTapGesture} />
+            <Blue doubleTapGesture={doubleTapGesture} onAddAction={addAction} />
           </Animated.View>
         </GestureDetector>
+        <View>
+          {lastActions.map((action, index) => (
+            <Text key={index}>
+              {index} - {action}
+            </Text>
+          ))}
+        </View>
         <View style={{ gap: 20 }}>
           <Text>
             <Bold>DoubleTap</Bold>: on all rectangles - should print "double
@@ -60,10 +81,10 @@ const Showcase = () => {
 
 export default Showcase;
 
-const Blue = ({ doubleTapGesture }) => {
+const Blue = ({ doubleTapGesture, onAddAction }) => {
   const tapGesture = Gesture.Tap()
     .onStart(() => {
-      console.log('Blue: tap');
+      onAddAction('Blue: tap');
     })
     .runOnJS(true);
 
@@ -72,16 +93,16 @@ const Blue = ({ doubleTapGesture }) => {
   return (
     <GestureDetector gesture={composedGesture}>
       <Animated.View style={styles.blue}>
-        <Orange doubleTapGesture={doubleTapGesture} />
+        <Orange doubleTapGesture={doubleTapGesture} onAddAction={onAddAction} />
       </Animated.View>
     </GestureDetector>
   );
 };
 
-const Orange = ({ doubleTapGesture }) => {
+const Orange = ({ doubleTapGesture, onAddAction }) => {
   const tapGesture = Gesture.Tap()
     .onStart(() => {
-      console.log('Orange: tap');
+      onAddAction('Orange: tap');
     })
     .runOnJS(true);
 
